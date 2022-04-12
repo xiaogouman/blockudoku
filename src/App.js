@@ -34,7 +34,11 @@ const shapes = [
   [[0,0,1],[0,1,0],[1,0,0]],
   [[0,1],[1,0]],
   [[1,0],[0,1]],
-  [[1,0,1],[1,1,1]]
+  [[1,0,1],[1,1,1]],
+  [[1,1,0],[0,1,1]],
+  [[0,1,1],[1,1,0]],
+  [[1,0],[1,1],[0,1]],
+  [[0,1],[1,1]],[1,0]
 ]
 
 class Game extends React.Component {
@@ -173,7 +177,7 @@ class Game extends React.Component {
     }
 
     // update shape status
-    this.updateShapeStatus(grid, nextShapeStatus, nextShapes);
+    this.updateShapeStatus(gridAfterEliminate, nextShapeStatus, nextShapes);
     this.setState({
       nextShapeStatus: nextShapeStatus
     })
@@ -221,7 +225,9 @@ class Game extends React.Component {
         console.log("reset");
         cnt ++;
         for (let j=0;j<9;j++) {
-          grid[rowIdx*9+j] = status; // reset
+          if (grid[rowIdx*9+j] !== SQUARE_STATUS.HOVERED) { // keep hovered square
+            grid[rowIdx*9+j] = status; // reset
+          }
         }
       }
     })
@@ -231,7 +237,9 @@ class Game extends React.Component {
         console.log("reset");
         cnt ++;
         for (let i=0;i<9;i++) {
-          grid[i*9+colIdx] = status; // reset
+          if (grid[i*9+colIdx] !== SQUARE_STATUS.HOVERED) { // keep hovered square
+            grid[i*9+colIdx] = status; // reset
+          }
         }
       }
     })
@@ -244,7 +252,9 @@ class Game extends React.Component {
         let originJ = (blockIdx%3)*3;
         for (let i=originI;i<originI+3;i++) {
           for (let j=originJ;j<originJ+3;j++) {
-            grid[i*9+j] = status; // reset
+            if (grid[i*9+j] !== SQUARE_STATUS.HOVERED) { // keep hovered square
+              grid[i*9+j] = status; // reset
+            }
           }
         }
       }
