@@ -38,7 +38,11 @@ const shapes = [
   [[1,1,0],[0,1,1]],
   [[0,1,1],[1,1,0]],
   [[1,0],[1,1],[0,1]],
-  [[0,1],[1,1]],[1,0]
+  [[0,1],[1,1],[1,0]],
+  [[0,1,0],[1,1,1]],
+  [[1,1,1],[0,1,0]],
+  [[1,0],[1,1],[1,0]],
+  [[0,1],[1,1],[0,1]]
 ]
 
 class Game extends React.Component {
@@ -96,7 +100,6 @@ class Game extends React.Component {
       this.clearHover(grid);
       if (this.canPutShape(grid, gridIdx, this.state.nextShapes[activeShapeId])) {
         this.putShape(grid, gridIdx, SQUARE_STATUS.HOVERED);
-        console.log("eliminate squares in preview")
         this.eliminateSquares(grid, SQUARE_STATUS.INFO);
       }
     }
@@ -119,8 +122,10 @@ class Game extends React.Component {
     let grid = this.state.grid.slice();
     let activeShapeId = this.state.selectedShapeIdx;
     let nextShapes = _.cloneDeep(this.state.nextShapes);
-    let nextShapeStatus = this.state.nextShapeStatus;
-
+    let nextShapeStatus = this.state.nextShapeStatus.slice();
+    console.log("=============")
+    console.log("handleBoardSquareClick " + gridIdx)
+    console.log("activeShapeId: " + activeShapeId);
     if (activeShapeId === -1) {
       // no selected shape, do nothing
       return;
@@ -131,6 +136,10 @@ class Game extends React.Component {
 
     // put the shape on the board
     this.putShape(grid, gridIdx, SQUARE_STATUS.BLOCKED);
+    
+    let gridAfterEliminate = grid.slice();
+    // eliminate squares
+    let cnt = this.eliminateSquares(gridAfterEliminate, SQUARE_STATUS.EMPTY);
 
     // if all shapes are hidden, generate new shapes
     nextShapeStatus[activeShapeId] = SHAPE_STATUS.HIDDEN;
@@ -139,17 +148,14 @@ class Game extends React.Component {
       _.fill(nextShapeStatus, SHAPE_STATUS.DEFAULT);
     }
 
-    this.setState({
-      grid: grid,
-      selectedShapeIdx: -1,
-      nextShapes: nextShapes,
-      nextShapeStatus: nextShapeStatus
-    })
+    // deactivate shape if they cannot be put on the board
+    this.updateShapeStatus(gridAfterEliminate, nextShapeStatus, nextShapes);
+
     
-    let gridAfterEliminate = grid.slice();
-    // eliminate squares
-    let cnt = this.eliminateSquares(gridAfterEliminate, SQUARE_STATUS.EMPTY);
-    console.log("eliminateSquares to empty!!!");
+    console.log("put shape " + activeShapeId)
+    console.log(nextShapeStatus)
+    console.log(nextShapes)
+
     if (cnt > 0) {
       // update grid first, and eliminate square with delay
       this.setState({
@@ -175,12 +181,6 @@ class Game extends React.Component {
         nextShapeStatus: nextShapeStatus
       })
     }
-
-    // update shape status
-    this.updateShapeStatus(gridAfterEliminate, nextShapeStatus, nextShapes);
-    this.setState({
-      nextShapeStatus: nextShapeStatus
-    })
 
     // check game end
     if (this.isGameEnd(nextShapeStatus)) {
@@ -222,7 +222,6 @@ class Game extends React.Component {
     // reset good rows and columns
     rows.forEach((value, rowIdx) => {
       if (value === true) { 
-        console.log("reset");
         cnt ++;
         for (let j=0;j<9;j++) {
           if (grid[rowIdx*9+j] !== SQUARE_STATUS.HOVERED) { // keep hovered square
@@ -234,7 +233,6 @@ class Game extends React.Component {
 
     columns.forEach((value, colIdx) => {
       if (value === true) {
-        console.log("reset");
         cnt ++;
         for (let i=0;i<9;i++) {
           if (grid[i*9+colIdx] !== SQUARE_STATUS.HOVERED) { // keep hovered square
@@ -246,7 +244,6 @@ class Game extends React.Component {
 
     blocks.forEach((value, blockIdx) => {
       if (value === true) {
-        console.log("reset");
         cnt ++;
         let originI = Math.floor(blockIdx/3)*3;
         let originJ = (blockIdx%3)*3;
@@ -268,7 +265,7 @@ class Game extends React.Component {
         continue;
       }
       // if the shape is hidden yet and it cannot be put on the grid, we need to disactivate it
-      if (!this.canPutShapeOnGrid(grid, i, nextShapes)) {
+      if (!this.canPutShapeOnGrid(grid, nextShapes[i])) {
         nextShapeStatus[i] = SHAPE_STATUS.DISABLED; // set to inactive
       } else {
         nextShapeStatus[i] = SHAPE_STATUS.DEFAULT;
@@ -321,8 +318,7 @@ class Game extends React.Component {
    * @param {*} grid 
    * @param {*} shapeId 
    */
-  canPutShapeOnGrid(grid, shapeId, nextShapes) {
-    let shape = nextShapes[shapeId];
+  canPutShapeOnGrid(grid, shape) {
     for (let i=0;i<9;i++) {
       for (let j=0;j<9;j++) {
         let gridIdx = i*9+j;
