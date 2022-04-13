@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/blockudoku/static/css/main.2bedaefc.css",
+    "main.js": "/blockudoku/static/js/main.309b5cfc.js",
+    "static/js/787.8debff7c.chunk.js": "/blockudoku/static/js/787.8debff7c.chunk.js",
+    "index.html": "/blockudoku/index.html",
+    "main.2bedaefc.css.map": "/blockudoku/static/css/main.2bedaefc.css.map",
+    "main.309b5cfc.js.map": "/blockudoku/static/js/main.309b5cfc.js.map",
+    "787.8debff7c.chunk.js.map": "/blockudoku/static/js/787.8debff7c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2bedaefc.css",
+    "static/js/main.309b5cfc.js"
+  ]
+}
